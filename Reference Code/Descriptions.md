@@ -1,2 +1,2 @@
-This folder contains few reference code and path to other reference code.
+This folder contains few reference code that I have build and path to other reference codes.
 
