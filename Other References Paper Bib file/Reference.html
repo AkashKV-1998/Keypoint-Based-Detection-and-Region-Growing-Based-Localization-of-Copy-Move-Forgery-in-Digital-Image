@@ -1,0 +1,744 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>JabRef references</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script type="text/javascript">
+<!--
+// QuickSearch script for JabRef HTML export (no Abstract/BibTeX)
+// Version: 3.0
+//
+// Copyright (c) 2006-2011, Mark Schenk
+//
+// This software is distributed under a Creative Commons Attribution 3.0 License
+// http://creativecommons.org/licenses/by/3.0/
+//
+// Features:
+// - intuitive find-as-you-type searching
+//    ~ case insensitive
+//    ~ ignore diacritics (optional)
+//
+// - search with/without Regular Expressions
+// - match BibTeX key
+//
+
+// Search settings
+var noSquiggles = true; 	// ignore diacritics when searching
+var searchRegExp = false; 	// enable RegExp searches
+
+
+if (window.addEventListener) {
+	window.addEventListener("load",initSearch,false); }
+else if (window.attachEvent) {
+	window.attachEvent("onload", initSearch); }
+
+function initSearch() {
+	// check for quick search table and searchfield
+	if (!document.getElementById('qs_table')||!document.getElementById('quicksearch')) { return; }
+
+	// load all the rows and sort into arrays
+	loadTableData();
+	
+	//find the query field
+	qsfield = document.getElementById('qs_field');
+
+	// previous search term; used for speed optimisation
+	prevSearch = '';
+
+	//find statistics location
+	stats = document.getElementById('stat');
+	setStatistics(-1);
+	
+	// set up preferences
+	initPreferences();
+
+	// shows the searchfield
+	document.getElementById('quicksearch').style.display = 'block';
+	document.getElementById('qs_field').onkeyup = quickSearch;
+}
+
+function loadTableData() {
+	// find table and appropriate rows
+	searchTable = document.getElementById('qs_table');
+	var allRows = searchTable.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+	// split all rows into entryRows and infoRows (e.g. abstract, comment, bibtex)
+	entryRows = new Array();
+
+	// get data from each row
+	entryRowsData = new Array();
+	
+	BibTeXKeys = new Array();
+	
+	for (var i=0, k=0, j=0; i<allRows.length;i++) {
+		if (allRows[i].className.match(/entry/)) {
+			entryRows[j] = allRows[i];
+			entryRowsData[j] = stripDiacritics(getTextContent(allRows[i]));
+			allRows[i].id ? BibTeXKeys[j] = allRows[i].id : allRows[i].id = 'autokey_'+j;
+			j ++;
+		}
+	}
+	//number of entries and rows
+	numEntries = entryRows.length;
+}
+
+function quickSearch(){
+	
+	tInput = qsfield;
+
+	if (tInput.value.length == 0) {
+		showAll();
+		setStatistics(-1);
+		qsfield.className = '';
+		return;
+	} else {
+		t = stripDiacritics(tInput.value);
+
+		if(!searchRegExp) { t = escapeRegExp(t); }
+			
+		// only search for valid RegExp
+		try {
+			textRegExp = new RegExp(t,"i");
+			qsfield.className = '';
+		}
+			catch(err) {
+			prevSearch = tInput.value;
+			qsfield.className = 'invalidsearch';
+			return;
+		}
+	}
+	
+	// count number of hits
+	var hits = 0;
+
+	// start looping through all entry rows
+	for (var i = 0; cRow = entryRows[i]; i++){
+
+		// only show search the cells if it isn't already hidden OR if the search term is getting shorter, then search all
+		if(cRow.className.indexOf('noshow')==-1 || tInput.value.length <= prevSearch.length){
+			var found = false; 
+
+			if (entryRowsData[i].search(textRegExp) != -1 || BibTeXKeys[i].search(textRegExp) != -1){ 
+				found = true;
+			}
+			
+			if (found){
+				cRow.className = 'entry show';
+				hits++;
+			} else {
+				cRow.className = 'entry noshow';
+			}
+		}
+	}
+
+	// update statistics
+	setStatistics(hits)
+	
+	// set previous search value
+	prevSearch = tInput.value;
+}
+
+
+// Strip Diacritics from text
+// http://stackoverflow.com/questions/990904/javascript-remove-accents-in-strings
+
+// String containing replacement characters for stripping accents 
+var stripstring = 
+    'AAAAAAACEEEEIIII'+
+    'DNOOOOO.OUUUUY..'+
+    'aaaaaaaceeeeiiii'+
+    'dnooooo.ouuuuy.y'+
+    'AaAaAaCcCcCcCcDd'+
+    'DdEeEeEeEeEeGgGg'+
+    'GgGgHhHhIiIiIiIi'+
+    'IiIiJjKkkLlLlLlL'+
+    'lJlNnNnNnnNnOoOo'+
+    'OoOoRrRrRrSsSsSs'+
+    'SsTtTtTtUuUuUuUu'+
+    'UuUuWwYyYZzZzZz.';
+
+function stripDiacritics(str){
+
+    if(noSquiggles==false){
+        return str;
+    }
+
+    var answer='';
+    for(var i=0;i<str.length;i++){
+        var ch=str[i];
+        var chindex=ch.charCodeAt(0)-192;   // Index of character code in the strip string
+        if(chindex>=0 && chindex<stripstring.length){
+            // Character is within our table, so we can strip the accent...
+            var outch=stripstring.charAt(chindex);
+            // ...unless it was shown as a '.'
+            if(outch!='.')ch=outch;
+        }
+        answer+=ch;
+    }
+    return answer;
+}
+
+// http://stackoverflow.com/questions/3446170/escape-string-for-use-in-javascript-regex
+// NOTE: must escape every \ in the export code because of the JabRef Export...
+function escapeRegExp(str) {
+  return str.replace(/[-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+}
+
+function setStatistics (hits) {
+	if(hits < 0) { hits=numEntries; }
+	if(stats) { stats.firstChild.data = hits + '/' + numEntries}
+}
+
+function getTextContent(node) {
+	// Function written by Arve Bersvendsen
+	// http://www.virtuelvis.com
+	
+	if (node.nodeType == 3) {
+	return node.nodeValue;
+	} // text node
+	if (node.nodeType == 1 && node.className != "infolinks") { // element node
+	var text = [];
+	for (var chld = node.firstChild;chld;chld=chld.nextSibling) {
+		text.push(getTextContent(chld));
+	}
+	return text.join("");
+	} return ""; // some other node, won't contain text nodes.
+}
+
+function showAll(){
+	for (var i = 0; i < numEntries; i++){ entryRows[i].className = 'entry show'; }
+}
+
+function clearQS() {
+	qsfield.value = '';
+	showAll();
+}
+
+function redoQS(){
+	showAll();
+	quickSearch(qsfield);
+}
+
+function updateSetting(obj){
+	var option = obj.id;
+	var checked = obj.value;
+
+	switch(option)
+	 {
+	 case "opt_useRegExp":
+	   searchRegExp=!searchRegExp;
+	   redoQS();
+	   break;
+	 case "opt_noAccents":
+	   noSquiggles=!noSquiggles;
+	   loadTableData();
+	   redoQS();
+	   break;
+	 }
+}
+
+function initPreferences(){
+	if(noSquiggles){document.getElementById("opt_noAccents").checked = true;}
+	if(searchRegExp){document.getElementById("opt_useRegExp").checked = true;}
+}
+
+function toggleSettings(){
+	var togglebutton = document.getElementById('showsettings');
+	var settings = document.getElementById('settings');
+	
+	if(settings.className == "hidden"){
+		settings.className = "show";
+		togglebutton.innerText = "close settings";
+		togglebutton.textContent = "close settings";
+	}else{
+		settings.className = "hidden";
+		togglebutton.innerText = "settings...";		
+		togglebutton.textContent = "settings...";
+	}
+}
+
+-->
+</script>
+<style type="text/css">
+body { background-color: white; font-family: Arial, sans-serif; font-size: 13px; line-height: 1.2; padding: 1em; color: #2E2E2E; margin: auto 2em; }
+
+form#quicksearch { width: auto; border-style: solid; border-color: gray; border-width: 1px 0px; padding: 0.7em 0.5em; display:none; position:relative; }
+span#searchstat {padding-left: 1em;}
+
+div#settings { margin-top:0.7em; /* border-bottom: 1px transparent solid; background-color: #efefef; border: 1px grey solid; */ }
+div#settings ul {margin: 0; padding: 0; }
+div#settings li {margin: 0; padding: 0 1em 0 0; display: inline; list-style: none; }
+div#settings li + li { border-left: 2px #efefef solid; padding-left: 0.5em;}
+div#settings input { margin-bottom: 0px;}
+
+div#settings.hidden {display:none;}
+
+#showsettings { border: 1px grey solid; padding: 0 0.5em; float:right; line-height: 1.6em; text-align: right; }
+#showsettings:hover { cursor: pointer; }
+
+.invalidsearch { background-color: red; }
+input[type="button"] { background-color: #efefef; border: 1px #2E2E2E solid;}
+
+table { width: 100%; empty-cells: show; border-spacing: 0em 0.2em; margin: 1em 0em; border-style: none; }
+th, td { border: 1px gray solid; border-width: 1px 1px; padding: 0.5em; vertical-align: top; text-align: left; }
+th { background-color: #efefef; }
+td + td, th + th { border-left: none; }
+
+td a { color: navy; text-decoration: none; }
+td a:hover  { text-decoration: underline; }
+
+tr.noshow { display: none;}
+tr.highlight td { background-color: #EFEFEF; border-top: 2px #2E2E2E solid; font-weight: bold; }
+tr.abstract td, tr.comment td, tr.bibtex td { background-color: #EFEFEF; text-align: justify; border-bottom: 2px #2E2E2E solid; }
+tr.nextshow td { border-bottom: 1px gray solid; }
+
+tr.bibtex pre { width: 100%; overflow: auto; white-space: pre-wrap;}
+p.infolinks { margin: 0.3em 0em 0em 0em; padding: 0px; }
+
+@media print {
+	p.infolinks, #qs_settings, #quicksearch, t.bibtex { display: none !important; }
+	tr { page-break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+
+<form action="" id="quicksearch">
+<input type="text" id="qs_field" autocomplete="off" placeholder="Type to search..." /> <input type="button" onclick="clearQS()" value="clear" />
+<span id="searchstat">Matching entries: <span id="stat">0</span></span>
+<div id="showsettings" onclick="toggleSettings()">settings...</div>
+<div id="settings" class="hidden">
+<ul>
+<li><input type="checkbox" class="search_setting" id="opt_useRegExp" onchange="updateSetting(this)"><label for="opt_useRegExp"> use RegExp</label></li>
+<li><input type="checkbox" class="search_setting" id="opt_noAccents" onchange="updateSetting(this)"><label for="opt_noAccents"> ignore accents</label></li>
+</ul>
+</div>
+</form>
+<table id="qs_table" border="1">
+<thead><tr><th width="20%">Author</th><th width="30%">Title</th><th width="5%">Year</th><th width="30%">Journal/Proceedings</th><th width="10%">Reftype</th><th width="5%">DOI/URL</th></tr></thead>
+<tbody><tr id="9215249" class="entry">
+	<td>Venugopalan, A.K., Varughese, S.K., Jacob, S.M., George, A. and Joseph, J.</td>
+	<td>AI Based Audio Recognition System For Visually And Audibly Challenged</td>
+	<td>2020</td>
+	<td>2020 International Conference on Smart Electronics and Communication (ICOSEC), pp. 297-304&nbsp;</td>
+	<td>conference</td>
+	<td><a href="https://doi.org/10.1109/ICOSEC49089.2020.9215249">DOI</a> <a href="http://mufind.mu.edu.sa/EdsRecord/edseee,edseee.9215249/UserComments">URL</a>&nbsp;</td>
+</tr>
+<tr id="Abdalla2019" class="entry">
+	<td>Abdalla, Y., Iqbal, T. and Shehata, M.S.</td>
+	<td>Convolutional Neural Network for Copy-Move Forgery Detection</td>
+	<td>2019</td>
+	<td>Symmetry<br/>Vol. 11(10)&nbsp;</td>
+	<td>article</td>
+	<td><a href="https://doi.org/10.3390/sym11101280">URL</a>&nbsp;</td>
+</tr>
+<tr id="Abdalla2019a" class="entry">
+	<td>Abdalla, Y., Iqbal, M.T. and Shehata, M.</td>
+	<td>Image Forgery Detection Based on Deep Transfer Learning</td>
+	<td>2019</td>
+	<td>European Journal of Electrical Engineering and Computer Science<br/>Vol. 3(5)&nbsp;</td>
+	<td>article</td>
+	<td><a href="https://doi.org/10.24018/ejece.2019.3.5.125">DOI</a> <a href="https://www.ejece.org/index.php/ejece/article/view/125">URL</a>&nbsp;</td>
+</tr>
+<tr id="Abidin2019" class="entry">
+	<td>Abidin, A.B.Z., Majid, H.B.A., Samah, A.B.A. and Hashim, H.B.</td>
+	<td>Copy-Move Image Forgery Detection Using Deep Learning Methods: A Review</td>
+	<td>2019</td>
+	<td>2019 6th International Conference on Research and Innovation in Information Systems (ICRIIS), pp. 1-6&nbsp;</td>
+	<td>conference</td>
+	<td><a href="https://doi.org/10.1109/ICRIIS48246.2019.9073569">DOI</a> &nbsp;</td>
+</tr>
+<tr id="Agarwal2020" class="entry">
+	<td>Agarwal, R. and Verma, O.P.</td>
+	<td>An efficient copy move forgery detection using deep learning feature extraction and matching algorithm</td>
+	<td>2020</td>
+	<td>Multimedia Tools and Applications<br/>Vol. 79(11), pp. 7355-7376&nbsp;</td>
+	<td>article</td>
+	<td><a href="https://doi.org/10.1007/s11042-019-08495-z">DOI</a> <a href="https://doi.org/10.1007/s11042-019-08495-z">URL</a>&nbsp;</td>
+</tr>
+<tr id="AliQureshi2014" class="entry">
+	<td>Ali Qureshi, M. and Deriche, M.</td>
+	<td>A review on copy move image forgery detection techniques</td>
+	<td>2014</td>
+	<td>2014 IEEE 11th International Multi-Conference on Systems, Signals Devices (SSD14), pp. 1-5&nbsp;</td>
+	<td>conference</td>
+	<td><a href="https://doi.org/10.1109/SSD.2014.6808907">DOI</a> &nbsp;</td>
+</tr>
+<tr id="Amerini2011" class="entry">
+	<td>Amerini, I., Ballan, L., Caldelli, R., Del Bimbo, A. and Serra, G.</td>
+	<td>A SIFT-Based Forensic Method for Copy–Move Attack Detection and Transformation Recovery</td>
+	<td>2011</td>
+	<td>IEEE Transactions on Information Forensics and Security<br/>Vol. 6(3), pp. 1099-1110&nbsp;</td>
+	<td>article</td>
+	<td><a href="https://doi.org/10.1109/TIFS.2011.2129512">DOI</a> &nbsp;</td>
+</tr>
+<tr id="ArmasVega2021" class="entry">
+	<td>Armas Vega, E.A., González Fernández, E., Sandoval Orozco, A.L. and García Villalba, L.J.</td>
+	<td>Copy-move forgery detection technique based on discrete cosine transform blocks features</td>
+	<td>2021</td>
+	<td>Neural Computing and Applications<br/>Vol. 33(10), pp. 4713-4727&nbsp;</td>
+	<td>article</td>
+	<td><a href="https://doi.org/10.1007/s00521-020-05433-1">DOI</a> <a href="https://doi.org/10.1007/s00521-020-05433-1">URL</a>&nbsp;</td>
+</tr>
+<tr id="article" class="entry">
+	<td>Graves, A.</td>
+	<td>Generating Sequences With Recurrent Neural Networks</td>
+	<td>2013</td>
+	<td>&nbsp;</td>
+	<td>conference</td>
+	<td><a href="https://paperswithcode.com/paper/generating-sequences-with-recurrent-neural">URL</a>&nbsp;</td>
+</tr>
+<tr id="article" class="entry">
+	<td>Saber, M. and El-kenawy, E.-S.</td>
+	<td>Design and implementation of accurate frequency estimator depend on deep learning</td>
+	<td>2020</td>
+	<td>&nbsp;</td>
+	<td>article</td>
+	<td><a href="https://www.researchgate.net/publication/342589443_Design_and_implementation_of_accurate_frequency_estimator_depend_on_deep_learning">URL</a>&nbsp;</td>
+</tr>
+<tr id="Ay2019" class="entry">
+	<td>Ay, B., Aydin, G., Koyun, Z. and Demir, M.</td>
+	<td>A Visual Similarity Recommendation System using Generative Adversarial Networks</td>
+	<td>2019</td>
+	<td>2019 International Conference on Deep Learning and Machine Learning in Emerging Applications (Deep-ML)&nbsp;</td>
+	<td>conference</td>
+	<td><a href="https://doi.org/10.1109/deep-ml.2019.00017">DOI</a> &nbsp;</td>
+</tr>
+<tr id="CENGIL2018" class="entry">
+	<td>CENGIL, E. and CINAR, A.</td>
+	<td>A Deep Learning Based Approach to Lung Cancer Identification</td>
+	<td>2018</td>
+	<td>2018 International Conference on Artificial Intelligence and Data Processing (IDAP)&nbsp;</td>
+	<td>conference</td>
+	<td><a href="https://doi.org/10.1109/idap.2018.8620723">DOI</a> &nbsp;</td>
+</tr>
+<tr id="Chen2019" class="entry">
+	<td>Chen, C.-C., Lu, W.-Y. and Chou, C.-H.</td>
+	<td>Rotational copy-move forgery detection using SIFT and region growing strategies</td>
+	<td>2019</td>
+	<td>Multimedia Tools and Applications<br/>Vol. 78(13), pp. 18293-18308&nbsp;</td>
+	<td>article</td>
+	<td><a href="https://doi.org/10.1007/s11042-019-7165-8">DOI</a> <a href="https://doi.org/10.1007/s11042-019-7165-8">URL</a>&nbsp;</td>
+</tr>
+<tr id="chen2021mogan" class="entry">
+	<td>Chen, J., Xu, Q., Kang, Q. and Zhou, M.</td>
+	<td>MOGAN: Morphologic-structure-aware Generative Learning from a Single Image</td>
+	<td>2021</td>
+	<td>&nbsp;</td>
+	<td>article</td>
+	<td>&nbsp;</td>
+</tr>
+<tr id="Christlein2012" class="entry">
+	<td>Christlein, V., Riess, C., Jordan, J., Riess, C. and Angelopoulou, E.</td>
+	<td>An Evaluation of Popular Copy-Move Forgery Detection Approaches</td>
+	<td>2012</td>
+	<td>IEEE Transactions on Information Forensics and Security<br/>Vol. 7(6), pp. 1841-1854&nbsp;</td>
+	<td>article</td>
+	<td><a href="https://doi.org/10.1109/TIFS.2012.2218597">DOI</a> <a href="http://arxiv.org/abs/1208.3665">URL</a>&nbsp;</td>
+</tr>
+<tr id="Darmet2021" class="entry">
+	<td>Darmet, L., Wang, K. and Cayre, F.</td>
+	<td>Disentangling copy-moved source and target areas</td>
+	<td>2021</td>
+	<td>Applied Soft Computing<br/>Vol. 109, pp. 107536&nbsp;</td>
+	<td>article</td>
+	<td><a href="https://doi.org/10.1016/j.asoc.2021.107536">DOI</a> <a href="https://www.sciencedirect.com/science/article/pii/S1568494621004592">URL</a>&nbsp;</td>
+</tr>
+<tr id="Diallo2020" class="entry">
+	<td>Diallo, B., Urruty, T., Bourdon, P. and Fernandez-Maloigne, C.</td>
+	<td>Robust forgery detection for compressed images using CNN supervision</td>
+	<td>2020</td>
+	<td>Forensic Science International: Reports<br/>Vol. 2, pp. 100112&nbsp;</td>
+	<td>article</td>
+	<td><a href="https://doi.org/10.1016/j.fsir.2020.100112">DOI</a> <a href="https://www.sciencedirect.com/science/article/pii/S266591072030061X">URL</a>&nbsp;</td>
+</tr>
+<tr id="Elaskily2020" class="entry">
+	<td>Elaskily, M.A., Elnemr, H.A., Sedik, A., Dessouky, M.M., El Banby, G.M., Elshakankiry, O.A., Khalaf, A.A.M., Aslan, H.K., Faragallah, O.S. and Abd El-Samie, F.E.</td>
+	<td>A novel deep learning framework for copy-moveforgery detection in images</td>
+	<td>2020</td>
+	<td>Multimedia Tools and Applications<br/>Vol. 79(27), pp. 19167-19192&nbsp;</td>
+	<td>article</td>
+	<td><a href="https://doi.org/10.1007/s11042-020-08751-7">DOI</a> <a href="https://doi.org/10.1007/s11042-020-08751-7">URL</a>&nbsp;</td>
+</tr>
+<tr id="Farfade2015" class="entry">
+	<td>Farfade, S.S., Saberian, M. and Li, L.-J.</td>
+	<td>Multi-view Face Detection Using Deep Convolutional Neural Networks</td>
+	<td>2015</td>
+	<td>&nbsp;</td>
+	<td>article</td>
+	<td><a href="http://arxiv.org/abs/1502.02766">URL</a>&nbsp;</td>
+</tr>
+<tr id="Gatys2015" class="entry">
+	<td>Gatys, L.A., Ecker, A.S. and Bethge, M.</td>
+	<td>A Neural Algorithm of Artistic Style</td>
+	<td>2015</td>
+	<td>Journal of Vision&nbsp;</td>
+	<td>article</td>
+	<td><a href="https://doi.org/10.1167/16.12.326">DOI</a> <a href="http://arxiv.org/abs/1508.06576">URL</a>&nbsp;</td>
+</tr>
+<tr id="Girshick2015" class="entry">
+	<td>Girshick, R.</td>
+	<td>Fast R-CNN</td>
+	<td>2015</td>
+	<td>IEEE International Conference on Computer Vision (ICCV)&nbsp;</td>
+	<td>article</td>
+	<td><a href="https://doi.org/10.1109/ICCV.2015.169">DOI</a> <a href="http://arxiv.org/abs/1504.08083">URL</a>&nbsp;</td>
+</tr>
+<tr id="goodfellow2014generative" class="entry">
+	<td>Goodfellow, I.J., Pouget-Abadie, J., Mirza, M., Xu, B., Warde-Farley, D., Ozair, S., Courville, A. and Bengio, Y.</td>
+	<td>Generative Adversarial Networks</td>
+	<td>2014</td>
+	<td>&nbsp;</td>
+	<td>article</td>
+	<td>&nbsp;</td>
+</tr>
+<tr id="Goularas2019" class="entry">
+	<td>Goularas, D. and Kamis, S.</td>
+	<td>Evaluation of Deep Learning Techniques in Sentiment Analysis from Twitter Data</td>
+	<td>2019</td>
+	<td>2019 International Conference on Deep Learning and Machine Learning in Emerging Applications (Deep-ML), pp. 12-17&nbsp;</td>
+	<td>conference</td>
+	<td><a href="https://doi.org/10.1109/Deep-ML.2019.00011">DOI</a> &nbsp;</td>
+</tr>
+<tr id="Graves2013" class="entry">
+	<td>Graves, A., Mohamed, A.-r. and Hinton, G.</td>
+	<td>Speech recognition with deep recurrent neural networks</td>
+	<td>2013</td>
+	<td>2013 IEEE International Conference on Acoustics, Speech and Signal Processing&nbsp;</td>
+	<td>conference</td>
+	<td><a href="https://doi.org/10.1109/icassp.2013.6638947">DOI</a> &nbsp;</td>
+</tr>
+<tr id="Hadjiyski2020" class="entry">
+	<td>Hadjiyski, N.</td>
+	<td>Kidney Cancer Staging: Deep Learning Neural Network Based Approach</td>
+	<td>2020</td>
+	<td>2020 International Conference on e-Health and Bioengineering (EHB)&nbsp;</td>
+	<td>conference</td>
+	<td><a href="https://doi.org/10.1109/ehb50910.2020.9280188">DOI</a> &nbsp;</td>
+</tr>
+<tr id="Hashmi2014" class="entry">
+	<td>Hashmi, M.F., Anand, V. and Keskar, A.G.</td>
+	<td>Copy-move Image Forgery Detection Using an Efficient and Robust Method Combining Un-decimated Wavelet Transform and Scale Invariant Feature Transform</td>
+	<td>2014</td>
+	<td>AASRI Procedia<br/>Vol. 9, pp. 84-91&nbsp;</td>
+	<td>article</td>
+	<td><a href="https://doi.org/10.1016/j.aasri.2014.09.015">DOI</a> <a href="https://www.sciencedirect.com/science/article/pii/S2212671614001152">URL</a>&nbsp;</td>
+</tr>
+<tr id="hinton2015distilling" class="entry">
+	<td>Hinton, G., Vinyals, O. and Dean, J.</td>
+	<td>Distilling the Knowledge in a Neural Network</td>
+	<td>2015</td>
+	<td>&nbsp;</td>
+	<td>article</td>
+	<td>&nbsp;</td>
+</tr>
+<tr id="Hussein2019" class="entry">
+	<td>Hussein, S., Kandel, P., Bolan, C.W., Wallace, M.B. and Bagci, U.</td>
+	<td>Lung and Pancreatic Tumor Characterization in the Deep Learning Era: Novel Supervised and Unsupervised Learning Approaches</td>
+	<td>2019</td>
+	<td>IEEE Transactions on Medical Imaging<br/>Vol. 38(8), pp. 1777-1787&nbsp;</td>
+	<td>article</td>
+	<td><a href="https://doi.org/10.1109/tmi.2019.2894349">DOI</a> &nbsp;</td>
+</tr>
+<tr id="Ioffe2015" class="entry">
+	<td>Ioffe, S. and Szegedy, C.</td>
+	<td>Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift</td>
+	<td>2015</td>
+	<td>International Conference on International Conference on Machine Learning&nbsp;</td>
+	<td>article</td>
+	<td><a href="http://arxiv.org/abs/1502.03167">URL</a>&nbsp;</td>
+</tr>
+<tr id="Isnanto2020" class="entry">
+	<td>Isnanto, R.R., Zahra, A.A., Santoso, I. and Lubis, M.S.</td>
+	<td>Determination of the Optimal Threshold Value and Number of Keypoints in Scale Invariant Feature Transform-based Copy-Move Forgery Detection</td>
+	<td>2020</td>
+	<td>International Journal of Electronics and Telecommunications<br/>Vol. 66(3), pp. 561-569&nbsp;</td>
+	<td>article</td>
+	<td><a href="http://ijet.pl/index.php/ijet/article/view/10.24425-ijet.2020.134013">URL</a>&nbsp;</td>
+</tr>
+<tr id="Kafali2021" class="entry">
+	<td>Kafali, E., Vretos, N., Semertzidis, T. and Daras, P.</td>
+	<td>RobusterNet: Improving Copy-Move Forgery Detection with Volterra-based Convolutions</td>
+	<td>2021</td>
+	<td>2020 25th International Conference on Pattern Recognition (ICPR), pp. 1160-1165&nbsp;</td>
+	<td>inproceedings</td>
+	<td><a href="https://doi.org/10.1109/ICPR48806.2021.9412587">DOI</a> &nbsp;</td>
+</tr>
+<tr id="Kalejahi2020" class="entry">
+	<td>Kalejahi, B.K., Meshgini, S., Daneshvar, S. and Farzamnia, A.</td>
+	<td>Bone Age Estimation by Deep Learning in X-Ray Medical Images</td>
+	<td>2020</td>
+	<td>2020 28th Iranian Conference on Electrical Engineering (ICEE)&nbsp;</td>
+	<td>conference</td>
+	<td><a href="https://doi.org/10.1109/icee50131.2020.9260591">DOI</a> &nbsp;</td>
+</tr>
+<tr id="Kaskavalci2019" class="entry">
+	<td>Kaskavalci, H.C. and Goren, S.</td>
+	<td>A Deep Learning Based Distributed Smart Surveillance Architecture using Edge and Cloud Computing</td>
+	<td>2019</td>
+	<td>2019 International Conference on Deep Learning and Machine Learning in Emerging Applications (Deep-ML)&nbsp;</td>
+	<td>conference</td>
+	<td><a href="https://doi.org/10.1109/deep-ml.2019.00009">DOI</a> &nbsp;</td>
+</tr>
+<tr id="Kingma2017" class="entry">
+	<td>Kingma, D.P. and Ba, J.</td>
+	<td>Adam: A Method for Stochastic Optimization</td>
+	<td>2017</td>
+	<td>International Conference for Learning Representations&nbsp;</td>
+	<td>article</td>
+	<td><a href="http://arxiv.org/abs/1412.6980">URL</a>&nbsp;</td>
+</tr>
+<tr id="Kumar2018" class="entry">
+	<td>Kumar, A., Jain, N., Singh, C. and Tripathi, S.</td>
+	<td>Exploiting SIFT Descriptor for Rotation Invariant Convolutional Neural Network</td>
+	<td>2018</td>
+	<td>2018 15th IEEE India Council International Conference (INDICON), pp. 1-5&nbsp;</td>
+	<td>inproceedings</td>
+	<td><a href="https://doi.org/10.1109/INDICON45594.2018.8987153">DOI</a> &nbsp;</td>
+</tr>
+<tr id="Lee2019" class="entry">
+	<td>Lee, K.B. and Shin, H.S.</td>
+	<td>An Application of a Deep Learning Algorithm for Automatic Detection of Unexpected Accidents Under Bad CCTV Monitoring Conditions in Tunnels</td>
+	<td>2019</td>
+	<td>2019 International Conference on Deep Learning and Machine Learning in Emerging Applications (Deep-ML)&nbsp;</td>
+	<td>conference</td>
+	<td><a href="https://doi.org/10.1109/deep-ml.2019.00010">DOI</a> &nbsp;</td>
+</tr>
+<tr id="Li2015" class="entry">
+	<td>Li, J., Li, X., Yang, B. and Sun, X.</td>
+	<td>Segmentation-Based Image Copy-Move Forgery Detection Scheme</td>
+	<td>2015</td>
+	<td>IEEE Transactions on Information Forensics and Security<br/>Vol. 10(3), pp. 507-518&nbsp;</td>
+	<td>article</td>
+	<td><a href="https://doi.org/10.1109/TIFS.2014.2381872">DOI</a> &nbsp;</td>
+</tr>
+<tr id="Liu2017" class="entry">
+	<td>Liu, Y., Guan, Q. and Zhao, X.</td>
+	<td>Copy-move Forgery Detection based on Convolutional Kernel Network</td>
+	<td>2017</td>
+	<td>arXiv:1707.01221 [cs]&nbsp;</td>
+	<td>article</td>
+	<td><a href="http://arxiv.org/abs/1707.01221">URL</a>&nbsp;</td>
+</tr>
+<tr id="Obeidat2019" class="entry">
+	<td>Obeidat, R., Duwairi, R. and Al-Aiad, A.</td>
+	<td>A Collaborative Recommendation System for Online Courses Recommendations</td>
+	<td>2019</td>
+	<td>2019 International Conference on Deep Learning and Machine Learning in Emerging Applications (Deep-ML)&nbsp;</td>
+	<td>conference</td>
+	<td><a href="https://doi.org/10.1109/deep-ml.2019.00018">DOI</a> &nbsp;</td>
+</tr>
+<tr id="Pavlovic2019" class="entry">
+	<td>Pavlovic, A., Glišovic, N., Gavrovska, A. and Reljin, I.</td>
+	<td>Copy-move forgery detection based on multifractals</td>
+	<td>2019</td>
+	<td>Multimedia Tools and Applications<br/>Vol. 78(15), pp. 20655-20678&nbsp;</td>
+	<td>article</td>
+	<td><a href="https://doi.org/10.1007/s11042-019-7277-1">DOI</a> <a href="https://doi.org/10.1007/s11042-019-7277-1">URL</a>&nbsp;</td>
+</tr>
+<tr id="Rao2016" class="entry">
+	<td>Rao, Y. and Ni, J.</td>
+	<td>A deep learning approach to detection of splicing and copy-move forgeries in images</td>
+	<td>2016</td>
+	<td>2016 IEEE International Workshop on Information Forensics and Security (WIFS), pp. 1-6&nbsp;</td>
+	<td>inproceedings</td>
+	<td><a href="https://doi.org/10.1109/WIFS.2016.7823911">DOI</a> &nbsp;</td>
+</tr>
+<tr id="Rao2020" class="entry">
+	<td>Rao, A.V., Rao, C.S. and Cheruku, D.R.</td>
+	<td>AN INNOVATIVE AND EFFICIENT DEEP LEARNING ALGORITHM FOR COPY MOVE FORGERY DETECTION IN DIGITAL IMAGES</td>
+	<td>2020</td>
+	<td>International Journal of Advanced Science and Technology<br/>Vol. 29(05), pp. 10531-10542&nbsp;</td>
+	<td>article</td>
+	<td><a href="http://sersc.org/journals/index.php/IJAST/article/view/24161">URL</a>&nbsp;</td>
+</tr>
+<tr id="Redmon2016" class="entry">
+	<td>Redmon, J., Divvala, S., Girshick, R. and Farhadi, A.</td>
+	<td>You Only Look Once: Unified, Real-Time Object Detection</td>
+	<td>2016</td>
+	<td>IEEE Conference on Computer Vision and Pattern Recognition (CVPR)&nbsp;</td>
+	<td>article</td>
+	<td><a href="https://doi.org/10.1109/CVPR.2016.91">DOI</a> <a href="http://arxiv.org/abs/1506.02640">URL</a>&nbsp;</td>
+</tr>
+<tr id="RodriguezOrtega2021" class="entry">
+	<td>Rodriguez-Ortega, Y., Ballesteros, D.M. and Renza, D.</td>
+	<td>Copy-Move Forgery Detection (CMFD) Using Deep Learning for Image and Video Forensics</td>
+	<td>2021</td>
+	<td>Journal of Imaging<br/>Vol. 7(3), pp. 59&nbsp;</td>
+	<td>article</td>
+	<td><a href="https://doi.org/10.3390/jimaging7030059">DOI</a> <a href="https://www.mdpi.com/2313-433X/7/3/59">URL</a>&nbsp;</td>
+</tr>
+<tr id="Roy2020" class="entry">
+	<td>Roy, S., Menapace, W., Oei, S., Luijten, B., Fini, E., Saltori, C., Huijben, I., Chennakeshava, N., Mento, F., Sentelli, A., Peschiera, E., Trevisan, R., Maschietto, G., Torri, E., Inchingolo, R., Smargiassi, A., Soldati, G., Rota, P., Passerini, A., van Sloun, R.J.G., Ricci, E. and Demi, L.</td>
+	<td>Deep Learning for Classification and Localization of COVID-19 Markers in Point-of-Care Lung Ultrasound</td>
+	<td>2020</td>
+	<td>IEEE Transactions on Medical Imaging<br/>Vol. 39(8), pp. 2676-2687&nbsp;</td>
+	<td>article</td>
+	<td><a href="https://doi.org/10.1109/tmi.2020.2994459">DOI</a> &nbsp;</td>
+</tr>
+<tr id="Ruder2017" class="entry">
+	<td>Ruder, S.</td>
+	<td>An overview of gradient descent optimization algorithms</td>
+	<td>2017</td>
+	<td>&nbsp;</td>
+	<td>article</td>
+	<td><a href="http://arxiv.org/abs/1609.04747">URL</a>&nbsp;</td>
+</tr>
+<tr id="Studiawan2021" class="entry">
+	<td>Studiawan, H., Salimi, R.N. and Ahmad, T.</td>
+	<td>Forensic Analysis of Copy-Move Attack with Robust Duplication Detection</td>
+	<td>2021</td>
+	<td>Proceedings of the 12th International Conference on Soft Computing and Pattern Recognition (SoCPaR 2020), pp. 404-413&nbsp;</td>
+	<td>inproceedings</td>
+	<td><a href="https://doi.org/10.1007/978-3-030-73689-7_39">DOI</a> &nbsp;</td>
+</tr>
+<tr id="Trosten2019" class="entry">
+	<td>Trosten, D.J. and Sharma, P.</td>
+	<td>Unsupervised Feature Extraction – A CNN-Based Approach</td>
+	<td>2019</td>
+	<td>Image Analysis, pp. 197-208&nbsp;</td>
+	<td>inproceedings</td>
+	<td><a href="https://doi.org/10.1007/978-3-030-20205-7_17">DOI</a> &nbsp;</td>
+</tr>
+<tr id="Wang2019" class="entry">
+	<td>Wang, X., Wang, H., Niu, S., Zhang, J., Wang, X., Wang, H., Niu, S. and Zhang, J.</td>
+	<td>Detection and localization of image forgeries using improved mask regional convolutional neural network</td>
+	<td>2019</td>
+	<td>Mathematical Biosciences and Engineering<br/>Vol. 16(5), pp. 4581-4593&nbsp;</td>
+	<td>article</td>
+	<td><a href="https://doi.org/10.3934/mbe.2019229">DOI</a> <a href="http://www.aimspress.com/rticle/doi/10.3934/mbe.2019229">URL</a>&nbsp;</td>
+</tr>
+<tr id="Wu2018" class="entry">
+	<td>Wu, Y., Abd-Almageed, W. and Natarajan, P.</td>
+	<td>BusterNet: Detecting Copy-Move Image Forgery with Source/Target Localization</td>
+	<td>2018</td>
+	<td>Computer Vision – ECCV 2018, pp. 170-186&nbsp;</td>
+	<td>inproceedings</td>
+	<td><a href="https://doi.org/10.1007/978-3-030-01231-1_11">DOI</a> &nbsp;</td>
+</tr>
+<tr id="Yang2020" class="entry">
+	<td>Yang, C., Li, H., Lin, F., Jiang, B. and Zhao, H.</td>
+	<td>Constrained R-CNN: A general image manipulation detection model</td>
+	<td>2020</td>
+	<td>arXiv:1911.08217 [cs]&nbsp;</td>
+	<td>article</td>
+	<td><a href="http://arxiv.org/abs/1911.08217">URL</a>&nbsp;</td>
+</tr>
+<tr id="" class="entry">
+	<td></td>
+	<td>A ConvNet Based Procedure for Image Copy-Move Forgery Detection</td>
+	<td></td>
+	<td>springerprofessional.de&nbsp;</td>
+	<td>misc</td>
+	<td><a href="https://www.springerprofessional.de/en/a-convnet-based-procedure-for-image-copy-move-forgery-detection/18113458">URL</a>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<footer>
+ <small>Created by <a href="http://jabref.sourceforge.net">JabRef</a> on 07/10/2021.</small>
+</footer>
+
+<!-- file generated by JabRef -->
+
+</body>
+</html>
