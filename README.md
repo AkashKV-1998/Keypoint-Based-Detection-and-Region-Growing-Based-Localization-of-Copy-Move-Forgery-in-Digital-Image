@@ -2,7 +2,7 @@
 
 The repository contains analysis and results of different copy-move forgery detection approaches.
 
-Results and Analysis _ ____________________________________________
-                    (|)                                         |
+Results and Analysis " ____________________________________________"
+                     |                                            |
                      |                                            |
         CoMoFoD_SD_Analysis with codes              MICC_F2000_Analysis with codes
