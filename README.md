@@ -109,7 +109,7 @@ The code of the paper 'Rotational copy-move forgery detection using SIFT and reg
     
 <em> Install all dependencies before running the codes: </em>
 
-Package used:
+Packages used:
 
 1. opencv-python==4.0.1.24
 2. numpy==1.19.2
