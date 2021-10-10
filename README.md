@@ -24,7 +24,7 @@ University  : Amrita College of Engineering, Kollam, Kerala, India
 
 The repository contains analysis and results of different copy-move forgery detection approaches.
 
-## Directory Details:
+## Directory Structure:
 <br/>
 
     1. Results and Analysis __________________________________________________                                    : THE DIRECTORY CONTAINS OUR ANALYSIS AND RESULTS
