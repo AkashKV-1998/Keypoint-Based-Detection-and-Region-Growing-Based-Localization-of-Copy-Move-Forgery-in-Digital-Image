@@ -83,7 +83,7 @@ Detecting image manipulations can be classified as active and passive approaches
 
 ## Results and Analysis 
     
-Currently, we have tested 3 codes with [CoMoFoD small dataset](https://www.vcl.fer.hr/comofod/download.html) and [MICC-F2000](http://lci.micc.unifi.it/labd/2015/01/copy-move-forgery-detection-and-localization/) dataset for detection and localization confusion matrix. The tested codes are:
+Currently, we have tested 3 codes with [CoMoFoD small dataset](https://www.vcl.fer.hr/comofod/download.html) and [MICC-F2000](http://lci.micc.unifi.it/labd/2015/01/copy-move-forgery-detection-and-localization/) dataset for detection and localization confusion matrix. The images are taken from random uniform distribution from the dataset. The tested codes are:
 
 1. DBSCAN-Based Copy-Move forgery detection 
 
