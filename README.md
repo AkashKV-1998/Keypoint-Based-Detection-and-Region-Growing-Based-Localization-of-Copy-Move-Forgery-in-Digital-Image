@@ -20,11 +20,31 @@ University  : Amrita College of Engineering, Kollam, Kerala, India
 
 <br/>
 
+This repository contains analysis and results of different copy-move forgery detection approaches.
+    
+## A brief Introduction to Copy-Move Forgery
+    
+### Abstract
+    
+Image manipulation is a common issue that we can see in social media, news, and many other places. Sometimes it is very difficult to understand these manipulations with our naked eye. Technology is advancing day by day. As the result, image manipulation tools are getting developed to such a level that a normal person with naked eye cannot figure out forgery regions in an image. Some of the common tools that are used to manipulate images are Adobe Photoshop, GIMP, Corel Paint Shop, etc. Image manipulation can create many issues in different field including forensics and fake news creation. There are different types of image manipulations that can be performed in an image. They are retouching, morphing, splicing and copy-move. In this project, we will explore different copy-move forgery detection techniques on available datasets to incorporate novel ideas for improving detection and localization accuracy.
+    
+### Background
+    
+Manipulating images or making minor changes to the original image to make them visually attractive is very common nowadays. There are many applications used for image manipulations and these applications provide an easy environment for the user to make changes to the original/authentic image. Therefore, image tampering is very popular and can be done easily. The image manipulations are either done to make the picture more attractive to the audience or to hide some content in the original image. Some common image tampering methods are retouching, morphing, splicing, and copy-move. A figure explaining the image manipulations is given below (Figure: 1) . In figure 1 (a), the bird is copy-moved to create a forged image while in (b) two images are used to create a spliced image. In (c) retouching is used to alter the source image and a morphing example can be
+seen in (d). When the original images undergo any of this tampering, then it will be difficult to identify the source image (original image) and tampered images separately. This caused several difficulties in the field of forensic and news broadcasting. We know that it is necessary to prove the authenticity of an image before submitting it to the court. If the tampered image is given to the court for a particular case, then the court may end up in a false conclusion about the case. Therefore, it is relevant for the forensic department to prove whether the particular image has undergone any tampering or not. Many studies are focused on identifying the authenticity of an image by the use of computer vision and machine learning tools. But most of the proposed approaches have less accuracy on detection and localization of tampered regions in an image.
+    
+ 
+<br/>
+    
+![](https://github.com/AkashKV-1998/Detection-and-Localization-of-Copy-Move-Image-Forgery-using-Deep-Learning-Networks/blob/main/Image%20Files%20md/Img_man.png) 
+    
+### Challenges in detecting Copy-move forgery
+
+Detecting image manipulations can be classified as active and passive approaches. The active approach requires pre-processing on the image such as adding signature or watermark to the image and is often done during image creation. Here, if the signature or the watermark extracted from the forgery image matches the original image, then we can conclude that the image is forged. The passive approach or blind approach is more difficult when we compare it with the active approach as we don’t consider any signature or watermark in the image. The passive approaches includes pixel-based techniques, format-based techniques, camera-based techniques etc. And these approaches are generally used to detect copy-move forgery, splice forgery, and morphing. Copy-move forgery detection is one of the challenging tasks to detect because the copied source is placed in the same image and hence it will not alter the overall image characteristics. The copied or forged regions may undergo some transformations such as scaling, translation, rotation, and flip. These transformations make it more difficult to identify the copy-move forgery regions in a tampered image. Suppose, if the forged region is made thin or scaled-down than the actual region in the source image, then detecting it with the help of a computer vision tool may not work that efficiently. There are many traditional computer vision and machine learning approaches proposed for detecting and localizing copy-move forgery regions in an image but most of the approaches are not robust to many of the image transformations. This repository contains results of different copy-move forgery detection approaches.
 
 
-The repository contains analysis and results of different copy-move forgery detection approaches.
-
-## Directory Structure:
+     
+## Repository Structure:
 <br/>
 
     1. Results and Analysis __________________________________________________                                    : THE DIRECTORY CONTAINS OUR ANALYSIS AND RESULTS
