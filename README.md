@@ -85,7 +85,7 @@ The code of the paper 'Rotational copy-move forgery detection using SIFT and reg
 
 ## Other Reference 
     
- The directory 'Other Reference' contains our entire references in a bibtex file and also in HTML file for your reference.
+ The directory '[Other Reference](https://github.com/AkashKV-1998/Detection-and-Localization-of-Copy-Move-Image-Forgery-using-Deep-Learning-Networks/tree/main/Other%20References%20Paper%20Bib%20file)' contains our entire references in a bibtex file and also in HTML file for your reference.
     
  <br/>
  <br/>
