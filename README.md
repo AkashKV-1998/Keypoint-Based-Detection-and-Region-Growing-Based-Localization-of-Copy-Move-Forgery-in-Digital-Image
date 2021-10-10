@@ -61,7 +61,7 @@ The repository contains analysis and results of different copy-move forgery dete
 
 ## Results and Analysis 
     
-Currently, we have tested 3 codes with [CoMoFoD small dataset](https://www.vcl.fer.hr/comofod/download.html) and [MICC-F2000](http://lci.micc.unifi.it/labd/2015/01/copy-move-forgery-detection-and-localization/) dataset for detection and localization for confusion matrix. The tested codes are:
+Currently, we have tested 3 codes with [CoMoFoD small dataset](https://www.vcl.fer.hr/comofod/download.html) and [MICC-F2000](http://lci.micc.unifi.it/labd/2015/01/copy-move-forgery-detection-and-localization/) dataset for detection and localization confusion matrix. The tested codes are:
 
 1. DBSCAN-Based Copy-Move forgery detection 
 
