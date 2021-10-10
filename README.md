@@ -105,15 +105,15 @@ Currently, we have tested 3 codes with [CoMoFoD small dataset](https://www.vcl.f
     
 The code of the paper 'Rotational copy-move forgery detection using SIFT and region growing strategies' ([Paper Link](https://link.springer.com/article/10.1007/s11042-019-7165-8)) we have implemented and uploaded in the directory '[Reference Code](https://github.com/AkashKV-1998/Detection-and-Localization-of-Copy-Move-Image-Forgery-using-Deep-Learning-Networks/tree/main/Reference%20Code/Code%20of%20Rotational%20copy-move%20forgery%20detection%20using%20SIFT%20and%20region%20growing%20strategies)'. But the code shows few error and localization is not accurate. The error is possibly on Hu moment calculations. If you want to reuse the code, we suggest kindly try to correct the errors in the code for better results.
     
-    <em> Install all dependencies before running the codes: </em>
-    
-    Package used:
-    
-    1. opencv-python==4.0.1
-    2. numpy==1.19.2
-    3. tqdm==4.61.2
-    4. matplotlib==3.3.4
-    5. psutil==5.8.0
+<em> Install all dependencies before running the codes: </em>
+
+Package used:
+
+1. opencv-python==4.0.1
+2. numpy==1.19.2
+3. tqdm==4.61.2
+4. matplotlib==3.3.4
+5. psutil==5.8.0
     
             pip install requirements.txt
 
