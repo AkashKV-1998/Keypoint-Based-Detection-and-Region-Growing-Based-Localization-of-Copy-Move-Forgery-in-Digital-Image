@@ -117,7 +117,7 @@ Package used:
 4. matplotlib==3.3.4
 5. psutil==5.8.0
     
-            pip install requirements.txt
+            pip install -r requirements.txt
 
 ## Other Reference 
     
