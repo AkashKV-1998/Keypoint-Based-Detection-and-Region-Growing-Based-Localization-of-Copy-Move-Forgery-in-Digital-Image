@@ -20,7 +20,7 @@ University  : Amrita College of Engineering, Kollam, Kerala, India
 
 <br/>
 
-This repository contains analysis and results of different copy-move forgery detection approaches.
+**This repository contains analysis and results of different copy-move forgery detection approaches.
     
 ## A brief Introduction to Copy-Move Forgery
     
