@@ -52,9 +52,11 @@ The repository contains analysis and results of different copy-move forgery dete
          growing strategies
          
          
-    3. Other References Paper Bib file                                                                            : OUR MAIN REFERENCES
+    3. Other Docs                                                                                                 : OTHER IMPORTANT DOCUMENTS
     
-    4. Other Docs                                                                                                 : OTHER IMPORTANT DOCUMENTS
+    4. Other References Paper Bib file                                                                            : OUR MAIN REFERENCES
+    
+  
     
 
  <br/>
