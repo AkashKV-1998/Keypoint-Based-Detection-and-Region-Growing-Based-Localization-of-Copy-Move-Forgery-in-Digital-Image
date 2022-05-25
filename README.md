@@ -1,4 +1,4 @@
-# Detection-and-Localization-of-Copy-Move-Image-Forgery-using-Deep-Learning-Networks
+# Keypoint-Based Detection and Region Growing-Based Localisation of Copy-Move Forgery in Digital Images
 <br/>
 
 ![](https://github.com/AkashKV-1998/Detection-and-Localization-of-Copy-Move-Image-Forgery-using-Deep-Learning-Networks/blob/main/Image%20Files%20md/logo.jpg)
