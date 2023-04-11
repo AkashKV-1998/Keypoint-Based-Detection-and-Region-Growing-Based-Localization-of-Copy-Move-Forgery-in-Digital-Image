@@ -55,7 +55,7 @@ Detecting image manipulations can be classified as active and passive approaches
                                     |
                       Proposed approach for CMFD
 
-    1. Results and Analysis __________________________________________________                                    : THE DIRECTORY CONTAINS OUR ANALYSIS AND RESULTS
+    2. Results and Analysis __________________________________________________                                    : THE DIRECTORY CONTAINS OUR ANALYSIS AND RESULTS
                                  |                                            |
                                  |                                            |
                     CoMoFoD_SD_Analysis with codes              MICC_F2000_Analysis with codes                    : DATASET USED FOR TESTING
@@ -72,7 +72,7 @@ Detecting image manipulations can be classified as active and passive approaches
                       FACMARD                   FACMARD                         FACMARD
 
 
-    2. Reference code____                                                                                         : CODE THAT WE HAVE IMPLEMENTED FROM OTHER PAPERS
+    3. Reference code____                                                                                         : CODE THAT WE HAVE IMPLEMENTED FROM OTHER PAPERS
                          |
                          |
          Code of Rotational copy-move forgery 
@@ -80,9 +80,9 @@ Detecting image manipulations can be classified as active and passive approaches
          growing strategies
          
          
-    3. Other Docs                                                                                                 : OTHER IMPORTANT DOCUMENTS
+    4. Other Docs                                                                                                 : OTHER IMPORTANT DOCUMENTS
     
-    4. Other References Paper Bib file                                                                            : OUR MAIN REFERENCES
+    5. Other References Paper Bib file                                                                            : OUR MAIN REFERENCES
     
   
     
