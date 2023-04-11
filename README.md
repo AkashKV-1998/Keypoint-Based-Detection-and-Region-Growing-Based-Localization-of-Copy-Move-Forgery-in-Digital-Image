@@ -50,6 +50,11 @@ Detecting image manipulations can be classified as active and passive approaches
 ## Repository Structure:
 <br/>
 
+    1. Implemented Code ___________                                                                               : PROPOSED ALGORITHM THAT MAKE USE OF SIFT AND DBSCAN
+                                    |
+                                    |
+                      Proposed approach for CMFD
+
     1. Results and Analysis __________________________________________________                                    : THE DIRECTORY CONTAINS OUR ANALYSIS AND RESULTS
                                  |                                            |
                                  |                                            |
