@@ -1,4 +1,4 @@
-# Keypoint-Based Detection and Region Growing-Based Localisation of Copy-Move Forgery in Digital Images
+# Keypoint-Based Detection and Region Growing-Based Localization of Copy-Move Forgery in Digital Images
 <br/>
 
 <a href="https://colab.research.google.com/github/AkashKV-1998/Detection-and-localization-of-CMFD/blob/main/Implemented%20Code/CMFD_Implementated_Code.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
