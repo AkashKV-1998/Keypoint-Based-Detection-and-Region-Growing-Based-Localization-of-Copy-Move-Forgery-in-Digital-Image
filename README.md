@@ -23,9 +23,9 @@ University  : Amrita College of Engineering, Kollam, Kerala, India
 
 <br/>
 
-**This repository contains analysis and results of different copy-move forgery detection approaches.
+📄Paper Link: [Link](https://doi.org/10.1007/978-981-19-7867-8_41)
 
-Paper Link: [Link](https://doi.org/10.1007/978-981-19-7867-8_41)
+**This repository contains analysis and results of different copy-move forgery detection approaches.
     
 ## A Brief Introduction to Copy-Move Forgery
     
