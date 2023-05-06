@@ -24,6 +24,8 @@ University  : Amrita College of Engineering, Kollam, Kerala, India
 <br/>
 
 **This repository contains analysis and results of different copy-move forgery detection approaches.
+
+Paper Link: [Link](https://doi.org/10.1007/978-981-19-7867-8_41)
     
 ## A Brief Introduction to Copy-Move Forgery
     
@@ -131,6 +133,8 @@ Packages used:
     
  The directory '[Other Reference](https://github.com/AkashKV-1998/Detection-and-Localization-of-Copy-Move-Image-Forgery-using-Deep-Learning-Networks/tree/main/Other%20References%20Paper%20Bib%20file)' contains our entire references in a bibtex file and also in HTML file for your reference.
     
+For more details, please go through the [paper](https://doi.org/10.1007/978-981-19-7867-8_41). 
+
  <br/>
  <br/>
 
