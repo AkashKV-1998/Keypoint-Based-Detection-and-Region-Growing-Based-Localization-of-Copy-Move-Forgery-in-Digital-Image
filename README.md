@@ -3,8 +3,6 @@
 
 <a href="https://colab.research.google.com/github/AkashKV-1998/Detection-and-localization-of-CMFD/blob/main/Implemented%20Code/CMFD_Implementated_Code.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
 
-<a href="[https://colab.research.google.com/github/AkashKV-1998/Detection-and-localization-of-CMFD/blob/main/Implemented%20Code/CMFD_Implementated_Code.ipynb](https://link.springer.com/chapter/10.1007/978-981-19-7867-8_41)" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open Published paper"/></a>
-
 Author details: 
 <br/>
 
