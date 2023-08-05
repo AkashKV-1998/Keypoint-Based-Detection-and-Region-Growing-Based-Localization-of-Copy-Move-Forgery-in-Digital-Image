@@ -8,7 +8,7 @@ Author details:
 
 Author      : Akash Kalluvilayil Venugopalan<sup>1
 <br/>
-Email🆔    : amenp2ari20001@am.students.amrita.edu 
+Email🆔    : akashkvenugopalan@gmail.com
 <br/>
 University  : Amrita College of Engineering, Kollam, Kerala, India
     
